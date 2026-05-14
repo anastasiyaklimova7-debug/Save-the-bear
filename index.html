@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Possessives: Bear & Bees</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        font-family: 'Nunito', sans-serif;
+        background-color: #81c784;
+    }
+    body {
+        /* Фон с медведем */
+        background-image: url('https://i.postimg.cc/d09sM96c/clean-image-2026-05-14T143622-465.png');
+        background-size: cover;
+        background-position: center bottom;
+        user-select: none;
+    }
+
+    .bee {
+        width: 100px;
+        height: 100px;
+        background-image: url('https://i.postimg.cc/9fBm3Bpk/Gemini-Generated-Image-1pt6fd1pt6fd1pt6.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        position: absolute;
+        cursor: pointer;
+        z-index: 50;
+        /* Плавное перемещение и легкое "дыхание" пчелы */
+        transition: transform 0.2s;
+        animation: hoverBee 2s infinite alternate ease-in-out;
+    }
+    .bee:hover {
+        transform: scale(1.1);
+    }
+
+    @keyframes hoverBee {
+        0% { transform: translateY(0px) rotate(-3deg); }
+        100% { transform: translateY(-10px) rotate(3deg); }
+    }
+
+    .game-btn {
+        background: linear-gradient(180deg, #ffca28 0%, #ff8f00 100%);
+        border: 3px solid #fff8e1;
+        border-radius: 25px;
+        color: #4e342e;
+        font-family: 'Fredoka One', cursive;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 6px 0 #d84315, 0 10px 10px rgba(0,0,0,0.3);
+        transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
+        text-transform: uppercase;
+        text-align: center;
+        padding: 15px 30px;
+    }
+    .game-btn:active {
+        transform: translateY(4px);
+        box-shadow: 0 2px 0 #d84315, 0 4px 4px rgba(0,0,0,0.3);
+    }
+    .game-btn:hover {
+        background: linear-gradient(180deg, #ffd54f 0%, #ffa000 100%);
+    }
+
+    /* Стартовая кнопка */
+    #startBtn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 32px;
+        padding: 20px 50px;
+        z-index: 200;
+        min-width: 350px;
+    }
+    #startBtn span {
+        display: block;
+        font-family: 'Nunito', sans-serif;
+        font-size: 18px;
+        font-weight: 800;
+        margin-top: 10px;
+        color: #3e2723;
+    }
+
+    #scoreBoard {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-family: 'Fredoka One', cursive;
+        font-size: 32px;
+        color: #fff8e1;
+        text-shadow: 2px 2px 0 #5d4037, -1px -1px 0 #5d4037, 1px -1px 0 #5d4037, -1px 1px 0 #5d4037;
+        z-index: 100;
+        background: rgba(141, 110, 99, 0.8);
+        padding: 10px 25px;
+        border-radius: 20px;
+        border: 4px solid #5d4037;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    #questionModal {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 85%;
+        max-width: 650px;
+        /* Медовый фон */
+        background: radial-gradient(circle at center, #ffe082 0%, #ffb300 100%);
+        padding: 40px;
+        /* Обрамление под дерево */
+        border: 10px solid #5d4037;
+        border-radius: 30px;
+        box-shadow: 
+            0 0 0 6px #3e2723, 
+            0 15px 35px rgba(0,0,0,0.6),
+            inset 0 0 30px rgba(255,143,0,0.5);
+        display: none;
+        z-index: 400;
+        text-align: center;
+        color: #3e2723;
+        transition: transform 0.1s; /* Для эффекта покачивания */
+    }
+
+    #questionText {
+        font-family: 'Fredoka One', cursive;
+        font-size: 34px;
+        margin-bottom: 35px;
+        background: rgba(255, 255, 255, 0.6);
+        padding: 25px;
+        border-radius: 20px;
+        border: 3px dashed #8d6e63;
+        color: #4e342e;
+    }
+
+    .options-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .option-btn {
+        font-size: 24px;
+        min-width: 140px;
+    }
+
+    .emoji-effect {
+        position: absolute;
+        pointer-events: none;
+        animation: floatEmoji 1.5s ease-out forwards;
+        z-index: 600;
+        filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+    }
+
+    @keyframes floatEmoji {
+        0% { transform: translateY(0) scale(0.5) rotate(-10deg); opacity: 0; }
+        20% { opacity: 1; transform: translateY(-30px) scale(1.2) rotate(10deg); }
+        100% { transform: translateY(-180px) scale(1) rotate(-15deg); opacity: 0; }
+    }
+
+    /* Финальный экран */
+    #finalOverlay {
+        position: absolute;
+        top:0; left:0;
+        width:100%; height:100%;
+        background: rgba(62, 39, 35, 0.9);
+        display: none;
+        z-index: 500;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        color: #fff8e1;
+    }
+    #finalMessage {
+        font-family: 'Fredoka One', cursive;
+        font-size: 64px;
+        margin-bottom: 20px;
+        color: #ffca28;
+        text-shadow: 0 4px 0 #d84315;
+        text-align: center;
+    }
+    #finalScore {
+        font-size: 36px;
+        margin-bottom: 40px;
+        font-weight: 800;
+    }
+
+    /* Анимация покачивания при ошибке */
+    .shake {
+        animation: shake-animation 0.4s ease-in-out;
+    }
+    @keyframes shake-animation {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        25% { transform: translate(-50%, -50%) rotate(3deg); }
+        50% { transform: translate(-50%, -50%) rotate(-3deg); }
+        75% { transform: translate(-50%, -50%) rotate(2deg); }
+        100% { transform: translate(-50%, -50%) rotate(0deg); }
+    }
+</style>
+</head>
+<body>
+
+<div id="scoreBoard">Score: <span id="scoreVal">0</span></div>
+
+<button class="game-btn" id="startBtn">
+    START GAME
+    <span>Choose the correct word<br>(my, your, his, her, its, our, their)</span>
+</button>
+
+<!-- Окно вопроса -->
+<div id="questionModal">
+    <div id="questionText">___ are you?</div>
+    <div class="options-container" id="optionsBox">
+        <!-- Кнопки появятся здесь -->
+    </div>
+</div>
+
+<!-- Финальный экран -->
+<div id="finalOverlay">
+    <div id="finalMessage">Sweet Victory! 🍯</div>
+    <div id="finalScore">Your Score: 0</div>
+    <button class="game-btn" id="restartBtn" style="font-size: 28px; padding: 20px 50px;">Play Again</button>
+</div>
+
+<script>
+    // Вопросы: 1 правильный ответ и 3 дистрактора (всего 4 варианта)
+    const rawQuestions = [
+        { q: "She’s got a cat. This is ___ cat.", a: "her", distractors: ["his", "my", "its"] },
+        { q: "I’ve got a red bag. This is ___ bag.", a: "my", distractors: ["your", "his", "our"] },
+        { q: "They’ve got new bikes. These are ___ bikes.", a: "their", distractors: ["our", "your", "its"] },
+        { q: "We’ve got funny hats. These are ___ hats.", a: "our", distractors: ["their", "your", "my"] },
+        { q: "He’s got a blue kite. This is ___ kite.", a: "his", distractors: ["her", "your", "my"] },
+        { q: "You’ve got new books. These are ___ books.", a: "your", distractors: ["my", "our", "their"] },
+        { q: "The dog has got a ball. This is ___ ball.", a: "its", distractors: ["his", "her", "their"] },
+        { q: "They’ve got toy cars. These are ___ cars.", a: "their", distractors: ["our", "my", "your"] },
+        { q: "We’ve got computers. These are ___ computers.", a: "our", distractors: ["their", "his", "her"] },
+        { q: "She’s got a pink pencil. This is ___ pencil.", a: "her", distractors: ["his", "my", "your"] },
+        { q: "I’ve got green T-shirts. These are ___ T-shirts.", a: "my", distractors: ["our", "their", "your"] },
+        { q: "He’s got toy trains. These are ___ trains.", a: "his", distractors: ["her", "its", "my"] },
+        { q: "The rabbits have got carrots. These are ___ carrots.", a: "their", distractors: ["our", "its", "your"] },
+        { q: "You’ve got a new book. This is ___ book.", a: "your", distractors: ["my", "our", "her"] }
+    ];
+
+    let gameQuestions = [];
+    let items = []; 
+    let score = 0;
+    let currentItem = null;
+    let activeMovement = false;
+    const BEE_SIZE = 100; // Размер пчелы
+
+    // Web Audio API для генерации тихих звуков
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+
+    function playCorrectSound() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        osc.type = 'sine';
+        // Легкий перезвон
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // До 2-й октавы
+        osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.2);
+        
+        gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); // Тихий звук!
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function playBuzzSound() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+        const duration = 0.5;
+
+        // Смешиваем две волны на низкой частоте (150 Гц) для эффекта "З-з-з-з"
+        const osc1 = audioCtx.createOscillator();
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(150, now); 
+        
+        const osc2 = audioCtx.createOscillator();
+        osc2.type = 'square';
+        osc2.frequency.setValueAtTime(150, now);
+
+        // Глухой фильтр срезает электронный шум и оставляет только гул
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(400, now); 
+
+        // Громкость (очень тихая и плавно затухающая)
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.1, now + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + duration);
+        osc2.stop(now + duration);
+    }
+
+    document.getElementById("startBtn").addEventListener("click", () => {
+        // Запускаем AudioContext по первому клику пользователя
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        document.getElementById("startBtn").style.display = "none";
+        startGame();
+    });
+
+    document.getElementById("restartBtn").addEventListener("click", () => {
+        document.getElementById("finalOverlay").style.display = "none";
+        startGame();
+    });
+
+    function startGame() {
+        score = 0;
+        updateScoreDisplay();
+        items.forEach(i => i.el.remove());
+        items = [];
+        
+        gameQuestions = [...rawQuestions].sort(() => Math.random() - 0.5);
+        
+        const count = Math.min(gameQuestions.length, 14); // Ровно 14 пчелок для 14 вопросов
+        for(let i = 0; i < count; i++) {
+            createBee(i);
+        }
+        activeMovement = true;
+        startAnimationLoop();
+    }
+
+    function createBee(qIndex) {
+        const item = document.createElement("div");
+        item.className = "bee";
+        
+        // Появление над медведем (ограничиваем спавн верхней и средней частью экрана)
+        const maxY = window.innerHeight * 0.65 - BEE_SIZE; 
+        let x = Math.random() * (window.innerWidth - BEE_SIZE);
+        let y = Math.random() * maxY;
+        
+        // Медленная скорость (0.4 - 0.8)
+        const baseSpeed = 0.6;
+        let dx = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 0.4 + baseSpeed); 
+        let dy = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 0.4 + baseSpeed); 
+
+        // Отражаем пчелу по горизонтали в зависимости от направления полета
+        item.style.transform = dx > 0 ? "scaleX(-1)" : "scaleX(1)";
+
+        item.style.left = x + "px";
+        item.style.top = y + "px";
+        item.dataset.qIndex = qIndex;
+
+        item.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openQuestion(item, qIndex);
+        });
+
+        document.body.appendChild(item);
+        items.push({ el: item, x, y, dx, dy });
+    }
+
+    let animationFrameId;
+
+    function startAnimationLoop() {
+        if (!animationFrameId) {
+            loop();
+        }
+    }
+
+    function loop() {
+        if (!activeMovement) return;
+
+        items.forEach(obj => {
+            obj.x += obj.dx;
+            obj.y += obj.dy;
+
+            // Отталкивание от стен (оставляем пчел в верхней 75% части экрана)
+            if (obj.x <= 0 || obj.x + BEE_SIZE >= window.innerWidth) {
+                obj.dx = -obj.dx;
+                obj.el.style.transform = obj.dx > 0 ? "scaleX(-1)" : "scaleX(1)"; // поворот
+            }
+            if (obj.y <= 0 || obj.y + BEE_SIZE >= window.innerHeight * 0.75) {
+                obj.dy = -obj.dy;
+            }
+
+            obj.el.style.left = obj.x + "px";
+            obj.el.style.top = obj.y + "px";
+        });
+
+        animationFrameId = requestAnimationFrame(loop);
+    }
+
+    function stopMovement() {
+        activeMovement = false;
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+
+    function resumeMovement() {
+        activeMovement = true;
+        loop();
+    }
+
+    function openQuestion(itemElement, index) {
+        if (!activeMovement) return;
+        stopMovement();
+        currentItem = itemElement;
+        
+        const qData = gameQuestions[index];
+        const modal = document.getElementById("questionModal");
+        const qText = document.getElementById("questionText");
+        const optBox = document.getElementById("optionsBox");
+
+        // Убираем класс тряски, если он остался с прошлого раза
+        modal.classList.remove("shake");
+
+        qText.textContent = qData.q;
+        optBox.innerHTML = "";
+
+        // 4 варианта: 1 правильный + 3 неверных
+        let options = [qData.a, ...qData.distractors];
+        options.sort(() => Math.random() - 0.5);
+
+        options.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.className = "game-btn option-btn";
+            btn.textContent = opt;
+            btn.onclick = () => checkAnswer(opt, qData.a);
+            optBox.appendChild(btn);
+        });
+
+        modal.style.display = "block";
+    }
+
+    function checkAnswer(selected, correct) {
+        if (selected === correct) {
+            playCorrectSound();
+            createEmojis();
+            score += 10;
+            updateScoreDisplay();
+            closeModal();
+            
+            const idx = items.findIndex(obj => obj.el === currentItem);
+            if (idx > -1) {
+                items[idx].el.remove();
+                items.splice(idx, 1);
+            }
+
+            if (items.length === 0) {
+                setTimeout(showFinalScreen, 1000);
+            } else {
+                resumeMovement();
+            }
+
+        } else {
+            // Ошибка: звук пчелы и покачивание
+            playBuzzSound();
+            const modal = document.getElementById("questionModal");
+            
+            // Перезапускаем анимацию тряски
+            modal.classList.remove("shake");
+            void modal.offsetWidth; // Магия для сброса CSS анимации
+            modal.classList.add("shake");
+        }
+    }
+
+    function closeModal() {
+        document.getElementById("questionModal").style.display = "none";
+    }
+
+    function updateScoreDisplay() {
+        document.getElementById("scoreVal").textContent = score;
+    }
+
+    function createEmojis() {
+        const modal = document.getElementById("questionModal");
+        
+        // Получаем точные координаты и размеры табло
+        const rect = modal.getBoundingClientRect();
+        
+        for (let i = 0; i < 25; i++) {
+            const b = document.createElement("div");
+            b.className = "emoji-effect";
+            
+            // Оставляем только улыбающиеся смайлики
+            b.textContent = "😊";
+            
+            const size = Math.random() * 20 + 30;
+            b.style.fontSize = size + "px";
+            
+            // Случайно выбираем край табло (0 - верх, 1 - право, 2 - низ, 3 - лево)
+            const edge = Math.floor(Math.random() * 4);
+            const offset = 20; // Отступ от самого края
+            
+            let startX, startY;
+            
+            if (edge === 0) { // Верх
+                startX = rect.left + Math.random() * rect.width;
+                startY = rect.top - offset + (Math.random() * 20 - 10);
+            } else if (edge === 1) { // Право
+                startX = rect.right + offset + (Math.random() * 20 - 10);
+                startY = rect.top + Math.random() * rect.height;
+            } else if (edge === 2) { // Низ
+                startX = rect.left + Math.random() * rect.width;
+                startY = rect.bottom + offset + (Math.random() * 20 - 10);
+            } else { // Лево
+                startX = rect.left - offset + (Math.random() * 20 - 10);
+                startY = rect.top + Math.random() * rect.height;
+            }
+            
+            b.style.left = startX + "px";
+            b.style.top = startY + "px";
+            
+            document.body.appendChild(b);
+
+            setTimeout(() => {
+                b.remove();
+            }, 1500);
+        }
+    }
+
+    function showFinalScreen() {
+        const overlay = document.getElementById("finalOverlay");
+        document.getElementById("finalScore").textContent = "Your Score: " + score;
+        overlay.style.display = "flex";
+    }
+
+</script>
+</body>
+</html>
